@@ -21,12 +21,12 @@ let investL;
 let geojsons = [
   {
     regionsURL:
-      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Investments.json",
+      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Investments.geojson",
     title: "استثمارات",
   },
   {
     regionsURL:
-      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Residential%20Houses.json",
+      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Residential%20Houses.geojson",
     title: "منازل سكنية",
   },
 ];
@@ -458,7 +458,7 @@ async function initializeMapKuwaitPricing() {
               const featureFlowListItem =
                 document.createElement("calcite-list-item");
               featureFlowListItem.label = graph.graphic.attributes.N_AName;
-              featureFlowListItem.description = `Street Type: ${graph.graphic.attributes.streetType} - Space Value: ${graph.graphic.attributes.Space}`;
+              featureFlowListItem.description = `نوع الشارع: ${graph.graphic.attributes.arabicStreetN} - المساحه: ${graph.graphic.attributes.Space}`;
 
               const featureAction = document.createElement("calcite-action");
               featureAction.slot = "actions-end";
@@ -711,7 +711,7 @@ async function initializeMapKuwaitPricing() {
                   document.createElement("calcite-list-item");
 
                 featureFlowListItem.label = graph.graphic.attributes.N_AName;
-                featureFlowListItem.description = `Street Type: ${graph.graphic.attributes.streetType} - Space Value: ${graph.graphic.attributes.Space}`;
+                featureFlowListItem.description = `نوع الشارع: ${graph.graphic.attributes.arabicStreetN} - المساحة: ${graph.graphic.attributes.Space}`;
 
                 const featureAction = document.createElement("calcite-action");
                 featureAction.slot = "actions-end";
@@ -858,7 +858,7 @@ async function initializeMapKuwaitPricing() {
               document.createElement("calcite-list-item");
 
             featureFlowListItem.label = graph.graphic.attributes.N_AName;
-            featureFlowListItem.description = `Street Type: ${graph.graphic.attributes.streetType} - Space Value: ${graph.graphic.attributes.Space}`;
+            featureFlowListItem.description = `نوع الشارع: ${graph.graphic.attributes.arabicStreetN} - المساحة: ${graph.graphic.attributes.Space}`;
 
             const featureAction = document.createElement("calcite-action");
             featureAction.slot = "actions-end";
@@ -1246,10 +1246,10 @@ async function initializeMapKuwaitPricing() {
         if (item.attributes.streetType === "General") {
           return;
         } else {
-          if (!stTypes.includes(item.attributes.streetType)) {
-            stTypes.push(item.attributes.streetType);
+          if (!stTypes.includes(item.attributes.arabicStreetN)) {
+            stTypes.push(item.attributes.arabicStreetN);
             calciteItemSt = document.createElement("calcite-dropdown-item");
-            calciteItemSt.innerHTML = item.attributes.streetType;
+            calciteItemSt.innerHTML = item.attributes.arabicStreetN;
             dropdownSt.append(calciteItemSt);
           }
         }
@@ -1272,7 +1272,7 @@ async function initializeMapKuwaitPricing() {
             if (item.attributes.streetType === "General") {
               return;
             } else {
-              if (item.attributes.streetType === selectedStreetType) {
+              if (item.attributes.arabicStreetN === selectedStreetType) {
                 if (!spValues.includes(item.attributes.Space)) {
                   spValues.push(item.attributes.Space);
                   calciteItemSp = document.createElement(
@@ -1291,9 +1291,9 @@ async function initializeMapKuwaitPricing() {
                 console.log(layy, "JJJ");
                 if (layerView) {
                   layy.source.items.map(async (item) => {
-                    if (item.attributes.streetType === selectedStreetType) {
+                    if (item.attributes.arabicStreetN === selectedStreetType) {
                       const filter = new FeatureFilter({
-                        where: "streetType = '" + selectedStreetType + "'",
+                        where: "arabicStreetN = '" + selectedStreetType + "'",
                       });
                       layerView.filter = filter;
 
@@ -1335,7 +1335,7 @@ async function initializeMapKuwaitPricing() {
                           where:
                             "Space = '" +
                             selectedStreetSpaceval +
-                            "' AND streetType = '" +
+                            "' AND arabicStreetN = '" +
                             selectedStreetType +
                             "'",
                         });
