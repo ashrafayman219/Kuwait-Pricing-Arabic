@@ -39,7 +39,7 @@ let geojsons1 = [
   },
   {
     regionsURL:
-      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Rent%20Houses.json",
+      "https://raw.githubusercontent.com/ashrafayman219/Kuwait-Pricing-Map/main/Rent%20Houses.geojson",
     title: "المساكن الخاصة",
   },
 ];
@@ -1705,7 +1705,7 @@ async function initializeMapKuwaitPricingRent() {
     let sizesbtn = document.getElementById("sizes");
 
     btnval.innerHTML = "اختر المنطقة";
-    bedsbtn.innerHTML = "اختر عدد السراير";
+    bedsbtn.innerHTML = "اختر عدد الأسرة";
     sizesbtn.innerHTML = "اختر المساحة";
 
     const flow = document.getElementById("example-flow");
@@ -1724,17 +1724,32 @@ async function initializeMapKuwaitPricingRent() {
 
       var featureFirstBlock = document.getElementById("first-flow-item-block");
       featureFirstBlock.description = `${graphicStatues.length} نتائج مقترحة`;
-
+      
       if (bedsbtn.innerHTML) {
-        if (bedsbtn.innerHTML === "اختر عدد السراير") {
+        if (bedsbtn.innerHTML === "اختر عدد الأسرة") {
           graphicStatues?.forEach((graph) => {
+            let FHighest;
+            let FAverage;
+            let FLowest;
             // if (stbtn.innerHTML) {
             // if (graph.graphic.attributes.streetType === stbtn.innerHTML) {
             const featureFlowListItem =
               document.createElement("calcite-list-item");
 
             featureFlowListItem.label = graph.graphic.attributes.N_AName;
-            featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.description} - المساحة: ${graph.graphic.attributes.area}`;
+
+            if (graph.graphic.layer.title === "الشاليهات") {
+              let meterPrice = numberWithCommas(graph.graphic.attributes.AveragePrice);
+              featureFlowListItem.description = `طول الواجهة البحرية بالمتر: ${graph.graphic.attributes.waterFL} - متوسط ​​سعر المتر الطولي للواجهة البحرية: ${meterPrice}`;
+              FHighest = numberWithCommas(graph.graphic.attributes.Highest);
+              FAverage = numberWithCommas(graph.graphic.attributes.Average);
+              FLowest = numberWithCommas(graph.graphic.attributes.Lowest);
+            } else {
+              featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.descriptionArabic} - المساحة: ${graph.graphic.attributes.area}`;
+              FHighest = numberWithCommas(graph.graphic.attributes.generalHighest);
+              FAverage = numberWithCommas(graph.graphic.attributes.generalAverage);
+              FLowest = numberWithCommas(graph.graphic.attributes.generalLowest);
+            }
 
             const featureAction = document.createElement("calcite-action");
             featureAction.slot = "actions-end";
@@ -1744,9 +1759,7 @@ async function initializeMapKuwaitPricingRent() {
 
             calciteList.append(featureFlowListItem);
 
-            let FHighest = numberWithCommas(graph.graphic.attributes.Highest);
-            let FAverage = numberWithCommas(graph.graphic.attributes.Average);
-            let FLowest = numberWithCommas(graph.graphic.attributes.Lowest);
+
             // console.log(numberWithCommas(graph.attributes.Highest));
             featureFirstBlock.heading = `مدى الاسعار: ${FHighest} - ${FLowest}`;
 
@@ -1972,178 +1985,76 @@ async function initializeMapKuwaitPricingRent() {
             // }
           });
         } else {
-          graphicStatues?.forEach((graph) => {
-            const items = document.querySelectorAll("calcite-list-item");
-            const itemsF = document.querySelectorAll("calcite-flow-item");
-            const n = document.getElementById("n");
-            items?.forEach((item) => {
-              item.remove();
-            });
-            itemsF?.forEach((item) => {
-              if (item !== n) item.remove();
-            });
-            // if (stbtn.innerHTML) {
-            // if (graph.graphic.attributes.streetType === stbtn.innerHTML) {
-            const featureFlowListItem =
-              document.createElement("calcite-list-item");
 
-            featureFlowListItem.label = graph.graphic.attributes.N_AName;
-            featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.description} - المساحة: ${graph.graphic.attributes.area}`;
+          if (bedsbtn.innerHTML === "طابق كامل (ارضى)") {
+            graphicStatues?.forEach((graph) => {
+              const items = document.querySelectorAll("calcite-list-item");
+              const itemsF = document.querySelectorAll("calcite-flow-item");
+              const n = document.getElementById("n");
+              items?.forEach((item) => {
+                item.remove();
+              });
+              itemsF?.forEach((item) => {
+                if (item !== n) item.remove();
+              });
+              // if (stbtn.innerHTML) {
+              // if (graph.graphic.attributes.streetType === stbtn.innerHTML) {
+              const featureFlowListItem =
+                document.createElement("calcite-list-item");
+  
+              featureFlowListItem.label = graph.graphic.attributes.N_AName;
 
-            const featureAction = document.createElement("calcite-action");
-            featureAction.slot = "actions-end";
-            featureAction.icon = "number-of-territories";
-            featureAction.text = "Kuwait Areas";
-            featureFlowListItem.append(featureAction);
-
-            calciteList.append(featureFlowListItem);
-
-            let FHighest = numberWithCommas(graph.graphic.attributes.Highest);
-            let FAverage = numberWithCommas(graph.graphic.attributes.Average);
-            let FLowest = numberWithCommas(graph.graphic.attributes.Lowest);
-            // console.log(numberWithCommas(graph.attributes.Highest));
-            featureFirstBlock.heading = `مدى الاسعار: ${FHighest} - ${FLowest}`;
-
-            function updateValues01() {
-              const newFeatureFlowItem =
-                document.createElement("calcite-flow-item");
-              newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
-              newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
-
-              const calciteAccordion =
-                document.createElement("calcite-accordion");
-              calciteAccordion.appearance = "solid";
-              calciteAccordion.setAttribute("icon-position", "start");
-              calciteAccordion.setAttribute("icon-type", "chevron");
-
-              const calciteAccordionItem = document.createElement(
-                "calcite-accordion-item"
-              );
-
-              calciteAccordionItem.heading = "الاعلى";
-              calciteAccordionItem.setAttribute(
-                "icon-start",
-                "graph-moving-average"
-              );
-              calciteAccordionItem.setAttribute("expanded", true);
-
-              calciteAccordion.append(calciteAccordionItem);
-
-              const calciteAccordionItemNotice =
-                document.createElement("calcite-notice");
-              calciteAccordionItemNotice.setAttribute("open", true);
-              calciteAccordionItem.append(calciteAccordionItemNotice);
-
-              const calciteAccordionItemnoticeContent =
-                document.createElement("div");
-              calciteAccordionItemnoticeContent.slot = "message";
-              calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
-              calciteAccordionItemNotice.append(
-                calciteAccordionItemnoticeContent
-              );
-              newFeatureFlowItem.append(calciteAccordion);
-
-              //2
-              const calciteAccordionItem01 = document.createElement(
-                "calcite-accordion-item"
-              );
-
-              calciteAccordionItem01.heading = "المتوسط";
-              calciteAccordionItem01.setAttribute(
-                "icon-start",
-                "graph-moving-average"
-              );
-              calciteAccordionItem01.setAttribute("expanded", true);
-
-              calciteAccordion.append(calciteAccordionItem01);
-
-              const calciteAccordionItemNotice01 =
-                document.createElement("calcite-notice");
-              calciteAccordionItemNotice01.setAttribute("open", true);
-              calciteAccordionItem01.append(calciteAccordionItemNotice01);
-
-              const calciteAccordionItemnoticeContent01 =
-                document.createElement("div");
-              calciteAccordionItemnoticeContent01.slot = "message";
-              calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
-              calciteAccordionItemNotice01.append(
-                calciteAccordionItemnoticeContent01
-              );
-
-              //3
-              const calciteAccordionItem02 = document.createElement(
-                "calcite-accordion-item"
-              );
-
-              calciteAccordionItem02.heading = "الاقل";
-              calciteAccordionItem02.setAttribute(
-                "icon-start",
-                "graph-moving-average"
-              );
-              calciteAccordionItem02.setAttribute("expanded", true);
-
-              calciteAccordion.append(calciteAccordionItem02);
-
-              const calciteAccordionItemNotice02 =
-                document.createElement("calcite-notice");
-              calciteAccordionItemNotice02.setAttribute("open", true);
-              calciteAccordionItem02.append(calciteAccordionItemNotice02);
-
-              const calciteAccordionItemnoticeContent02 =
-                document.createElement("div");
-              calciteAccordionItemnoticeContent02.slot = "message";
-              calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
-              calciteAccordionItemNotice02.append(
-                calciteAccordionItemnoticeContent02
-              );
-
-              if (!isLastLevel) {
-                const button = document.createElement("calcite-button");
-                button.slot = "footer";
-                button.width = "full";
-                button.innerText = "Move to a third Flow Item";
-                button.addEventListener("click", (event) => {
-                  alert("F");
-                });
-                if (!isLastLevel) newFeatureFlowItem.append(button);
+              if (graph.graphic.layer.title === "الشاليهات") {
+                let meterPrice = numberWithCommas(graph.graphic.attributes.AveragePrice);
+                featureFlowListItem.description = `طول الواجهة البحرية بالمتر: ${graph.graphic.attributes.waterFL} - متوسط ​​سعر المتر الطولي للواجهة البحرية: ${meterPrice}`;
+              } else {
+                featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.descriptionArabic} - المساحة: ${graph.graphic.attributes.area}`;
               }
-
-              flow.append(newFeatureFlowItem);
-            }
-            updateValues01();
-
-            featureFlowListItem.addEventListener(
-              "calciteListItemSelect",
-              function () {
+  
+              const featureAction = document.createElement("calcite-action");
+              featureAction.slot = "actions-end";
+              featureAction.icon = "number-of-territories";
+              featureAction.text = "Kuwait Areas";
+              featureFlowListItem.append(featureAction);
+  
+              calciteList.append(featureFlowListItem);
+  
+              let FHighest = numberWithCommas(graph.graphic.attributes.groundHighest);
+              let FAverage = numberWithCommas(graph.graphic.attributes.groundAverage);
+              let FLowest = numberWithCommas(graph.graphic.attributes.groundLowest);
+              // console.log(numberWithCommas(graph.attributes.Highest));
+              featureFirstBlock.heading = `مدى الاسعار: ${FHighest} - ${FLowest}`;
+  
+              function updateValues01() {
                 const newFeatureFlowItem =
                   document.createElement("calcite-flow-item");
                 newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
                 newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
-
+  
                 const calciteAccordion =
                   document.createElement("calcite-accordion");
                 calciteAccordion.appearance = "solid";
                 calciteAccordion.setAttribute("icon-position", "start");
                 calciteAccordion.setAttribute("icon-type", "chevron");
-
+  
                 const calciteAccordionItem = document.createElement(
                   "calcite-accordion-item"
                 );
-
+  
                 calciteAccordionItem.heading = "الاعلى";
                 calciteAccordionItem.setAttribute(
                   "icon-start",
                   "graph-moving-average"
                 );
                 calciteAccordionItem.setAttribute("expanded", true);
-
+  
                 calciteAccordion.append(calciteAccordionItem);
-
+  
                 const calciteAccordionItemNotice =
                   document.createElement("calcite-notice");
                 calciteAccordionItemNotice.setAttribute("open", true);
                 calciteAccordionItem.append(calciteAccordionItemNotice);
-
+  
                 const calciteAccordionItemnoticeContent =
                   document.createElement("div");
                 calciteAccordionItemnoticeContent.slot = "message";
@@ -2152,26 +2063,26 @@ async function initializeMapKuwaitPricingRent() {
                   calciteAccordionItemnoticeContent
                 );
                 newFeatureFlowItem.append(calciteAccordion);
-
+  
                 //2
                 const calciteAccordionItem01 = document.createElement(
                   "calcite-accordion-item"
                 );
-
+  
                 calciteAccordionItem01.heading = "المتوسط";
                 calciteAccordionItem01.setAttribute(
                   "icon-start",
                   "graph-moving-average"
                 );
                 calciteAccordionItem01.setAttribute("expanded", true);
-
+  
                 calciteAccordion.append(calciteAccordionItem01);
-
+  
                 const calciteAccordionItemNotice01 =
                   document.createElement("calcite-notice");
                 calciteAccordionItemNotice01.setAttribute("open", true);
                 calciteAccordionItem01.append(calciteAccordionItemNotice01);
-
+  
                 const calciteAccordionItemnoticeContent01 =
                   document.createElement("div");
                 calciteAccordionItemnoticeContent01.slot = "message";
@@ -2179,26 +2090,26 @@ async function initializeMapKuwaitPricingRent() {
                 calciteAccordionItemNotice01.append(
                   calciteAccordionItemnoticeContent01
                 );
-
+  
                 //3
                 const calciteAccordionItem02 = document.createElement(
                   "calcite-accordion-item"
                 );
-
+  
                 calciteAccordionItem02.heading = "الاقل";
                 calciteAccordionItem02.setAttribute(
                   "icon-start",
                   "graph-moving-average"
                 );
                 calciteAccordionItem02.setAttribute("expanded", true);
-
+  
                 calciteAccordion.append(calciteAccordionItem02);
-
+  
                 const calciteAccordionItemNotice02 =
                   document.createElement("calcite-notice");
                 calciteAccordionItemNotice02.setAttribute("open", true);
                 calciteAccordionItem02.append(calciteAccordionItemNotice02);
-
+  
                 const calciteAccordionItemnoticeContent02 =
                   document.createElement("div");
                 calciteAccordionItemnoticeContent02.slot = "message";
@@ -2206,7 +2117,7 @@ async function initializeMapKuwaitPricingRent() {
                 calciteAccordionItemNotice02.append(
                   calciteAccordionItemnoticeContent02
                 );
-
+  
                 if (!isLastLevel) {
                   const button = document.createElement("calcite-button");
                   button.slot = "footer";
@@ -2217,14 +2128,646 @@ async function initializeMapKuwaitPricingRent() {
                   });
                   if (!isLastLevel) newFeatureFlowItem.append(button);
                 }
-
+  
                 flow.append(newFeatureFlowItem);
               }
-            );
-            // }
+              updateValues01();
+  
+              featureFlowListItem.addEventListener(
+                "calciteListItemSelect",
+                function () {
+                  const newFeatureFlowItem =
+                    document.createElement("calcite-flow-item");
+                  newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
+                  newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
+  
+                  const calciteAccordion =
+                    document.createElement("calcite-accordion");
+                  calciteAccordion.appearance = "solid";
+                  calciteAccordion.setAttribute("icon-position", "start");
+                  calciteAccordion.setAttribute("icon-type", "chevron");
+  
+                  const calciteAccordionItem = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem.heading = "الاعلى";
+                  calciteAccordionItem.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem);
+  
+                  const calciteAccordionItemNotice =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice.setAttribute("open", true);
+                  calciteAccordionItem.append(calciteAccordionItemNotice);
+  
+                  const calciteAccordionItemnoticeContent =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent.slot = "message";
+                  calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
+                  calciteAccordionItemNotice.append(
+                    calciteAccordionItemnoticeContent
+                  );
+                  newFeatureFlowItem.append(calciteAccordion);
+  
+                  //2
+                  const calciteAccordionItem01 = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem01.heading = "المتوسط";
+                  calciteAccordionItem01.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem01.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem01);
+  
+                  const calciteAccordionItemNotice01 =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice01.setAttribute("open", true);
+                  calciteAccordionItem01.append(calciteAccordionItemNotice01);
+  
+                  const calciteAccordionItemnoticeContent01 =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent01.slot = "message";
+                  calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
+                  calciteAccordionItemNotice01.append(
+                    calciteAccordionItemnoticeContent01
+                  );
+  
+                  //3
+                  const calciteAccordionItem02 = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem02.heading = "الاقل";
+                  calciteAccordionItem02.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem02.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem02);
+  
+                  const calciteAccordionItemNotice02 =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice02.setAttribute("open", true);
+                  calciteAccordionItem02.append(calciteAccordionItemNotice02);
+  
+                  const calciteAccordionItemnoticeContent02 =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent02.slot = "message";
+                  calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
+                  calciteAccordionItemNotice02.append(
+                    calciteAccordionItemnoticeContent02
+                  );
+  
+                  if (!isLastLevel) {
+                    const button = document.createElement("calcite-button");
+                    button.slot = "footer";
+                    button.width = "full";
+                    button.innerText = "Move to a third Flow Item";
+                    button.addEventListener("click", (event) => {
+                      alert("F");
+                    });
+                    if (!isLastLevel) newFeatureFlowItem.append(button);
+                  }
+  
+                  flow.append(newFeatureFlowItem);
+                }
+              );
+              // }
+  
+              // }
+            });
+          } else if (bedsbtn.innerHTML === "طابق كامل (الاول او الثانى)") {
+            graphicStatues?.forEach((graph) => {
+              const items = document.querySelectorAll("calcite-list-item");
+              const itemsF = document.querySelectorAll("calcite-flow-item");
+              const n = document.getElementById("n");
+              items?.forEach((item) => {
+                item.remove();
+              });
+              itemsF?.forEach((item) => {
+                if (item !== n) item.remove();
+              });
+              // if (stbtn.innerHTML) {
+              // if (graph.graphic.attributes.streetType === stbtn.innerHTML) {
+              const featureFlowListItem =
+                document.createElement("calcite-list-item");
+  
+              featureFlowListItem.label = graph.graphic.attributes.N_AName;
 
-            // }
-          });
+              if (graph.graphic.layer.title === "الشاليهات") {
+                let meterPrice = numberWithCommas(graph.graphic.attributes.AveragePrice);
+                featureFlowListItem.description = `طول الواجهة البحرية بالمتر: ${graph.graphic.attributes.waterFL} - متوسط ​​سعر المتر الطولي للواجهة البحرية: ${meterPrice}`;
+              } else {
+                featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.descriptionArabic} - المساحة: ${graph.graphic.attributes.area}`;
+              }
+  
+              const featureAction = document.createElement("calcite-action");
+              featureAction.slot = "actions-end";
+              featureAction.icon = "number-of-territories";
+              featureAction.text = "Kuwait Areas";
+              featureFlowListItem.append(featureAction);
+  
+              calciteList.append(featureFlowListItem);
+  
+              let FHighest = numberWithCommas(graph.graphic.attributes.floor12Highest);
+              let FAverage = numberWithCommas(graph.graphic.attributes.floor12Average);
+              let FLowest = numberWithCommas(graph.graphic.attributes.floor12Lowest);
+              // console.log(numberWithCommas(graph.attributes.Highest));
+              featureFirstBlock.heading = `مدى الاسعار: ${FHighest} - ${FLowest}`;
+  
+              function updateValues01() {
+                const newFeatureFlowItem =
+                  document.createElement("calcite-flow-item");
+                newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
+                newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
+  
+                const calciteAccordion =
+                  document.createElement("calcite-accordion");
+                calciteAccordion.appearance = "solid";
+                calciteAccordion.setAttribute("icon-position", "start");
+                calciteAccordion.setAttribute("icon-type", "chevron");
+  
+                const calciteAccordionItem = document.createElement(
+                  "calcite-accordion-item"
+                );
+  
+                calciteAccordionItem.heading = "الاعلى";
+                calciteAccordionItem.setAttribute(
+                  "icon-start",
+                  "graph-moving-average"
+                );
+                calciteAccordionItem.setAttribute("expanded", true);
+  
+                calciteAccordion.append(calciteAccordionItem);
+  
+                const calciteAccordionItemNotice =
+                  document.createElement("calcite-notice");
+                calciteAccordionItemNotice.setAttribute("open", true);
+                calciteAccordionItem.append(calciteAccordionItemNotice);
+  
+                const calciteAccordionItemnoticeContent =
+                  document.createElement("div");
+                calciteAccordionItemnoticeContent.slot = "message";
+                calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
+                calciteAccordionItemNotice.append(
+                  calciteAccordionItemnoticeContent
+                );
+                newFeatureFlowItem.append(calciteAccordion);
+  
+                //2
+                const calciteAccordionItem01 = document.createElement(
+                  "calcite-accordion-item"
+                );
+  
+                calciteAccordionItem01.heading = "المتوسط";
+                calciteAccordionItem01.setAttribute(
+                  "icon-start",
+                  "graph-moving-average"
+                );
+                calciteAccordionItem01.setAttribute("expanded", true);
+  
+                calciteAccordion.append(calciteAccordionItem01);
+  
+                const calciteAccordionItemNotice01 =
+                  document.createElement("calcite-notice");
+                calciteAccordionItemNotice01.setAttribute("open", true);
+                calciteAccordionItem01.append(calciteAccordionItemNotice01);
+  
+                const calciteAccordionItemnoticeContent01 =
+                  document.createElement("div");
+                calciteAccordionItemnoticeContent01.slot = "message";
+                calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
+                calciteAccordionItemNotice01.append(
+                  calciteAccordionItemnoticeContent01
+                );
+  
+                //3
+                const calciteAccordionItem02 = document.createElement(
+                  "calcite-accordion-item"
+                );
+  
+                calciteAccordionItem02.heading = "الاقل";
+                calciteAccordionItem02.setAttribute(
+                  "icon-start",
+                  "graph-moving-average"
+                );
+                calciteAccordionItem02.setAttribute("expanded", true);
+  
+                calciteAccordion.append(calciteAccordionItem02);
+  
+                const calciteAccordionItemNotice02 =
+                  document.createElement("calcite-notice");
+                calciteAccordionItemNotice02.setAttribute("open", true);
+                calciteAccordionItem02.append(calciteAccordionItemNotice02);
+  
+                const calciteAccordionItemnoticeContent02 =
+                  document.createElement("div");
+                calciteAccordionItemnoticeContent02.slot = "message";
+                calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
+                calciteAccordionItemNotice02.append(
+                  calciteAccordionItemnoticeContent02
+                );
+  
+                if (!isLastLevel) {
+                  const button = document.createElement("calcite-button");
+                  button.slot = "footer";
+                  button.width = "full";
+                  button.innerText = "Move to a third Flow Item";
+                  button.addEventListener("click", (event) => {
+                    alert("F");
+                  });
+                  if (!isLastLevel) newFeatureFlowItem.append(button);
+                }
+  
+                flow.append(newFeatureFlowItem);
+              }
+              updateValues01();
+  
+              featureFlowListItem.addEventListener(
+                "calciteListItemSelect",
+                function () {
+                  const newFeatureFlowItem =
+                    document.createElement("calcite-flow-item");
+                  newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
+                  newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
+  
+                  const calciteAccordion =
+                    document.createElement("calcite-accordion");
+                  calciteAccordion.appearance = "solid";
+                  calciteAccordion.setAttribute("icon-position", "start");
+                  calciteAccordion.setAttribute("icon-type", "chevron");
+  
+                  const calciteAccordionItem = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem.heading = "الاعلى";
+                  calciteAccordionItem.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem);
+  
+                  const calciteAccordionItemNotice =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice.setAttribute("open", true);
+                  calciteAccordionItem.append(calciteAccordionItemNotice);
+  
+                  const calciteAccordionItemnoticeContent =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent.slot = "message";
+                  calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
+                  calciteAccordionItemNotice.append(
+                    calciteAccordionItemnoticeContent
+                  );
+                  newFeatureFlowItem.append(calciteAccordion);
+  
+                  //2
+                  const calciteAccordionItem01 = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem01.heading = "المتوسط";
+                  calciteAccordionItem01.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem01.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem01);
+  
+                  const calciteAccordionItemNotice01 =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice01.setAttribute("open", true);
+                  calciteAccordionItem01.append(calciteAccordionItemNotice01);
+  
+                  const calciteAccordionItemnoticeContent01 =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent01.slot = "message";
+                  calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
+                  calciteAccordionItemNotice01.append(
+                    calciteAccordionItemnoticeContent01
+                  );
+  
+                  //3
+                  const calciteAccordionItem02 = document.createElement(
+                    "calcite-accordion-item"
+                  );
+  
+                  calciteAccordionItem02.heading = "الاقل";
+                  calciteAccordionItem02.setAttribute(
+                    "icon-start",
+                    "graph-moving-average"
+                  );
+                  calciteAccordionItem02.setAttribute("expanded", true);
+  
+                  calciteAccordion.append(calciteAccordionItem02);
+  
+                  const calciteAccordionItemNotice02 =
+                    document.createElement("calcite-notice");
+                  calciteAccordionItemNotice02.setAttribute("open", true);
+                  calciteAccordionItem02.append(calciteAccordionItemNotice02);
+  
+                  const calciteAccordionItemnoticeContent02 =
+                    document.createElement("div");
+                  calciteAccordionItemnoticeContent02.slot = "message";
+                  calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
+                  calciteAccordionItemNotice02.append(
+                    calciteAccordionItemnoticeContent02
+                  );
+  
+                  if (!isLastLevel) {
+                    const button = document.createElement("calcite-button");
+                    button.slot = "footer";
+                    button.width = "full";
+                    button.innerText = "Move to a third Flow Item";
+                    button.addEventListener("click", (event) => {
+                      alert("F");
+                    });
+                    if (!isLastLevel) newFeatureFlowItem.append(button);
+                  }
+  
+                  flow.append(newFeatureFlowItem);
+                }
+              );
+              // }
+  
+              // }
+            });
+          } else {
+            
+                      graphicStatues?.forEach((graph) => {
+                        const items = document.querySelectorAll("calcite-list-item");
+                        const itemsF = document.querySelectorAll("calcite-flow-item");
+                        const n = document.getElementById("n");
+                        items?.forEach((item) => {
+                          item.remove();
+                        });
+                        itemsF?.forEach((item) => {
+                          if (item !== n) item.remove();
+                        });
+                        // if (stbtn.innerHTML) {
+                        // if (graph.graphic.attributes.streetType === stbtn.innerHTML) {
+                        const featureFlowListItem =
+                          document.createElement("calcite-list-item");
+            
+                        featureFlowListItem.label = graph.graphic.attributes.N_AName;
+                        if (graph.graphic.layer.title === "الشاليهات") {
+                          let meterPrice = numberWithCommas(graph.graphic.attributes.AveragePrice);
+                          featureFlowListItem.description = `طول الواجهة البحرية بالمتر: ${graph.graphic.attributes.waterFL} - متوسط ​​سعر المتر الطولي للواجهة البحرية: ${meterPrice}`;
+                        } else {
+                          featureFlowListItem.description = `الوصف: ${graph.graphic.attributes.descriptionArabic} - المساحة: ${graph.graphic.attributes.area}`;
+                        }
+            
+                        const featureAction = document.createElement("calcite-action");
+                        featureAction.slot = "actions-end";
+                        featureAction.icon = "number-of-territories";
+                        featureAction.text = "Kuwait Areas";
+                        featureFlowListItem.append(featureAction);
+            
+                        calciteList.append(featureFlowListItem);
+            
+                        let FHighest = numberWithCommas(graph.graphic.attributes.Highest);
+                        let FAverage = numberWithCommas(graph.graphic.attributes.Average);
+                        let FLowest = numberWithCommas(graph.graphic.attributes.Lowest);
+                        // console.log(numberWithCommas(graph.attributes.Highest));
+                        featureFirstBlock.heading = `مدى الاسعار: ${FHighest} - ${FLowest}`;
+            
+                        function updateValues01() {
+                          const newFeatureFlowItem =
+                            document.createElement("calcite-flow-item");
+                          newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
+                          newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
+            
+                          const calciteAccordion =
+                            document.createElement("calcite-accordion");
+                          calciteAccordion.appearance = "solid";
+                          calciteAccordion.setAttribute("icon-position", "start");
+                          calciteAccordion.setAttribute("icon-type", "chevron");
+            
+                          const calciteAccordionItem = document.createElement(
+                            "calcite-accordion-item"
+                          );
+            
+                          calciteAccordionItem.heading = "الاعلى";
+                          calciteAccordionItem.setAttribute(
+                            "icon-start",
+                            "graph-moving-average"
+                          );
+                          calciteAccordionItem.setAttribute("expanded", true);
+            
+                          calciteAccordion.append(calciteAccordionItem);
+            
+                          const calciteAccordionItemNotice =
+                            document.createElement("calcite-notice");
+                          calciteAccordionItemNotice.setAttribute("open", true);
+                          calciteAccordionItem.append(calciteAccordionItemNotice);
+            
+                          const calciteAccordionItemnoticeContent =
+                            document.createElement("div");
+                          calciteAccordionItemnoticeContent.slot = "message";
+                          calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
+                          calciteAccordionItemNotice.append(
+                            calciteAccordionItemnoticeContent
+                          );
+                          newFeatureFlowItem.append(calciteAccordion);
+            
+                          //2
+                          const calciteAccordionItem01 = document.createElement(
+                            "calcite-accordion-item"
+                          );
+            
+                          calciteAccordionItem01.heading = "المتوسط";
+                          calciteAccordionItem01.setAttribute(
+                            "icon-start",
+                            "graph-moving-average"
+                          );
+                          calciteAccordionItem01.setAttribute("expanded", true);
+            
+                          calciteAccordion.append(calciteAccordionItem01);
+            
+                          const calciteAccordionItemNotice01 =
+                            document.createElement("calcite-notice");
+                          calciteAccordionItemNotice01.setAttribute("open", true);
+                          calciteAccordionItem01.append(calciteAccordionItemNotice01);
+            
+                          const calciteAccordionItemnoticeContent01 =
+                            document.createElement("div");
+                          calciteAccordionItemnoticeContent01.slot = "message";
+                          calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
+                          calciteAccordionItemNotice01.append(
+                            calciteAccordionItemnoticeContent01
+                          );
+            
+                          //3
+                          const calciteAccordionItem02 = document.createElement(
+                            "calcite-accordion-item"
+                          );
+            
+                          calciteAccordionItem02.heading = "الاقل";
+                          calciteAccordionItem02.setAttribute(
+                            "icon-start",
+                            "graph-moving-average"
+                          );
+                          calciteAccordionItem02.setAttribute("expanded", true);
+            
+                          calciteAccordion.append(calciteAccordionItem02);
+            
+                          const calciteAccordionItemNotice02 =
+                            document.createElement("calcite-notice");
+                          calciteAccordionItemNotice02.setAttribute("open", true);
+                          calciteAccordionItem02.append(calciteAccordionItemNotice02);
+            
+                          const calciteAccordionItemnoticeContent02 =
+                            document.createElement("div");
+                          calciteAccordionItemnoticeContent02.slot = "message";
+                          calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
+                          calciteAccordionItemNotice02.append(
+                            calciteAccordionItemnoticeContent02
+                          );
+            
+                          if (!isLastLevel) {
+                            const button = document.createElement("calcite-button");
+                            button.slot = "footer";
+                            button.width = "full";
+                            button.innerText = "Move to a third Flow Item";
+                            button.addEventListener("click", (event) => {
+                              alert("F");
+                            });
+                            if (!isLastLevel) newFeatureFlowItem.append(button);
+                          }
+            
+                          flow.append(newFeatureFlowItem);
+                        }
+                        updateValues01();
+            
+                        featureFlowListItem.addEventListener(
+                          "calciteListItemSelect",
+                          function () {
+                            const newFeatureFlowItem =
+                              document.createElement("calcite-flow-item");
+                            newFeatureFlowItem.heading = `${graph.graphic.attributes.N_AName}`;
+                            newFeatureFlowItem.description = `${graph.graphic.attributes.N_AName}`;
+            
+                            const calciteAccordion =
+                              document.createElement("calcite-accordion");
+                            calciteAccordion.appearance = "solid";
+                            calciteAccordion.setAttribute("icon-position", "start");
+                            calciteAccordion.setAttribute("icon-type", "chevron");
+            
+                            const calciteAccordionItem = document.createElement(
+                              "calcite-accordion-item"
+                            );
+            
+                            calciteAccordionItem.heading = "الاعلى";
+                            calciteAccordionItem.setAttribute(
+                              "icon-start",
+                              "graph-moving-average"
+                            );
+                            calciteAccordionItem.setAttribute("expanded", true);
+            
+                            calciteAccordion.append(calciteAccordionItem);
+            
+                            const calciteAccordionItemNotice =
+                              document.createElement("calcite-notice");
+                            calciteAccordionItemNotice.setAttribute("open", true);
+                            calciteAccordionItem.append(calciteAccordionItemNotice);
+            
+                            const calciteAccordionItemnoticeContent =
+                              document.createElement("div");
+                            calciteAccordionItemnoticeContent.slot = "message";
+                            calciteAccordionItemnoticeContent.innerHTML = `${FHighest}`;
+                            calciteAccordionItemNotice.append(
+                              calciteAccordionItemnoticeContent
+                            );
+                            newFeatureFlowItem.append(calciteAccordion);
+            
+                            //2
+                            const calciteAccordionItem01 = document.createElement(
+                              "calcite-accordion-item"
+                            );
+            
+                            calciteAccordionItem01.heading = "المتوسط";
+                            calciteAccordionItem01.setAttribute(
+                              "icon-start",
+                              "graph-moving-average"
+                            );
+                            calciteAccordionItem01.setAttribute("expanded", true);
+            
+                            calciteAccordion.append(calciteAccordionItem01);
+            
+                            const calciteAccordionItemNotice01 =
+                              document.createElement("calcite-notice");
+                            calciteAccordionItemNotice01.setAttribute("open", true);
+                            calciteAccordionItem01.append(calciteAccordionItemNotice01);
+            
+                            const calciteAccordionItemnoticeContent01 =
+                              document.createElement("div");
+                            calciteAccordionItemnoticeContent01.slot = "message";
+                            calciteAccordionItemnoticeContent01.innerHTML = `${FAverage}`;
+                            calciteAccordionItemNotice01.append(
+                              calciteAccordionItemnoticeContent01
+                            );
+            
+                            //3
+                            const calciteAccordionItem02 = document.createElement(
+                              "calcite-accordion-item"
+                            );
+            
+                            calciteAccordionItem02.heading = "الاقل";
+                            calciteAccordionItem02.setAttribute(
+                              "icon-start",
+                              "graph-moving-average"
+                            );
+                            calciteAccordionItem02.setAttribute("expanded", true);
+            
+                            calciteAccordion.append(calciteAccordionItem02);
+            
+                            const calciteAccordionItemNotice02 =
+                              document.createElement("calcite-notice");
+                            calciteAccordionItemNotice02.setAttribute("open", true);
+                            calciteAccordionItem02.append(calciteAccordionItemNotice02);
+            
+                            const calciteAccordionItemnoticeContent02 =
+                              document.createElement("div");
+                            calciteAccordionItemnoticeContent02.slot = "message";
+                            calciteAccordionItemnoticeContent02.innerHTML = `${FLowest}`;
+                            calciteAccordionItemNotice02.append(
+                              calciteAccordionItemnoticeContent02
+                            );
+            
+                            if (!isLastLevel) {
+                              const button = document.createElement("calcite-button");
+                              button.slot = "footer";
+                              button.width = "full";
+                              button.innerText = "Move to a third Flow Item";
+                              button.addEventListener("click", (event) => {
+                                alert("F");
+                              });
+                              if (!isLastLevel) newFeatureFlowItem.append(button);
+                            }
+            
+                            flow.append(newFeatureFlowItem);
+                          }
+                        );
+                        // }
+            
+                        // }
+                      });
+          }
+
         }
       }
 
@@ -2414,10 +2957,12 @@ async function initializeMapKuwaitPricingRent() {
       const selectedItem = event.target.textContent;
       if (selectedItem === "الشاليهات") {
         if (dropdownS) {
+          dropdownb.style.display = "none";
           dropdownS.style.display = "none";
           // view.ui.remove(dropdownS);
         }
       } else {
+        dropdownb.style.display = "block";
         dropdownS.style.display = "block";
         // view.ui.add(dropdownS, "top-right");
       }
@@ -2425,7 +2970,7 @@ async function initializeMapKuwaitPricingRent() {
 
       view.ui.remove(calsiteshell);
       // view.ui.add(legend, "bottom-left");
-      bedsbtn.innerHTML = "اختر عدد السراير";
+      bedsbtn.innerHTML = "اختر عدد الأسرة";
       sizesbtn.innerHTML = "اختر المساحة";
 
       btnval.innerHTML = selectedItem;
@@ -2465,7 +3010,11 @@ async function initializeMapKuwaitPricingRent() {
 
     async function getAllStreetsTypes(area) {
       var bedsN = [];
+      var groundN = [];
+      var floor12N = [];
       let calciteItemBeds;
+      let calciteItemGround;
+      let calciteItemfloor12;
 
       const dropdownItemsB = dropdownb.querySelectorAll(
         "calcite-dropdown-item"
@@ -2476,12 +3025,27 @@ async function initializeMapKuwaitPricingRent() {
         // if (item.attributes.bedsNumber === "General") {
         //   return;
         // } else {
-        if (!bedsN.includes(item.attributes.bedsNumber)) {
-          bedsN.push(item.attributes.bedsNumber);
-          calciteItemBeds = document.createElement("calcite-dropdown-item");
-          calciteItemBeds.innerHTML = item.attributes.bedsNumber;
-          dropdownb.append(calciteItemBeds);
-        }
+  
+          if (!groundN.includes(item.attributes.groundArabic)) {
+            groundN.push(item.attributes.groundArabic);
+            calciteItemGround = document.createElement("calcite-dropdown-item");
+            calciteItemGround.innerHTML = item.attributes.groundArabic;
+            dropdownb.append(calciteItemGround);
+          }
+  
+          if (!floor12N.includes(item.attributes.floor12Arabic)) {
+            floor12N.push(item.attributes.floor12Arabic);
+            calciteItemfloor12 = document.createElement("calcite-dropdown-item");
+            calciteItemfloor12.innerHTML = item.attributes.floor12Arabic;
+            dropdownb.append(calciteItemfloor12);
+          }
+
+          if (!bedsN.includes(item.attributes.descriptionArabic)) {
+            bedsN.push(item.attributes.descriptionArabic);
+            calciteItemBeds = document.createElement("calcite-dropdown-item");
+            calciteItemBeds.innerHTML = item.attributes.descriptionArabic;
+            dropdownb.append(calciteItemBeds);
+          }
         // }
       });
 
@@ -2513,7 +3077,7 @@ async function initializeMapKuwaitPricingRent() {
             // if (item.attributes.streetType === "General") {
             //   return;
             // } else {
-            if (item.attributes.bedsNumber == selectedBedsN) {
+            if (item.attributes.groundArabic == selectedBedsN || item.attributes.floor12Arabic == selectedBedsN || item.attributes.descriptionArabic == selectedBedsN) {
               // console.log("herrrrr", "herrrrr");
               if (!areasValues.includes(item.attributes.area)) {
                 areasValues.push(item.attributes.area);
@@ -2534,9 +3098,56 @@ async function initializeMapKuwaitPricingRent() {
                 // console.log(layy, "JJJ");
                 if (layerView) {
                   layy.source.items.map(async (item) => {
-                    if (item.attributes.bedsNumber === selectedBedsN) {
+
+                    if (item.attributes.descriptionArabic === selectedBedsN) {
                       const filter = new FeatureFilter({
-                        where: "bedsNumber = '" + selectedBedsN + "'",
+                        where: "descriptionArabic = '" + selectedBedsN + "'",
+                      });
+                      layerView.filter = filter;
+
+                      const query = {
+                        where: layerView.filter.where,
+                        returnGeometry: true,
+                      };
+                      let { extent, count } = await layerView.queryExtent(
+                        query
+                      );
+                      if (count == 0) {
+                        let { extent, count } = await layy.queryExtent(query);
+                        view.goTo(extent);
+                        console.log("layer query extent");
+                      } else {
+                        view.goTo(extent);
+                        console.log("layerview query extent");
+                      }
+                    }
+
+                    if (item.attributes.groundArabic === selectedBedsN) {
+                      const filter = new FeatureFilter({
+                        where: "groundArabic = '" + selectedBedsN + "'",
+                      });
+                      layerView.filter = filter;
+
+                      const query = {
+                        where: layerView.filter.where,
+                        returnGeometry: true,
+                      };
+                      let { extent, count } = await layerView.queryExtent(
+                        query
+                      );
+                      if (count == 0) {
+                        let { extent, count } = await layy.queryExtent(query);
+                        view.goTo(extent);
+                        console.log("layer query extent");
+                      } else {
+                        view.goTo(extent);
+                        console.log("layerview query extent");
+                      }
+                    }
+
+                    if (item.attributes.floor12Arabic === selectedBedsN) {
+                      const filter = new FeatureFilter({
+                        where: "floor12Arabic = '" + selectedBedsN + "'",
                       });
                       layerView.filter = filter;
 
@@ -2573,14 +3184,14 @@ async function initializeMapKuwaitPricingRent() {
                   console.log(layy, "JJJ");
                   if (layerView) {
                     layy.source.items.map(async (item) => {
-                      if (item.attributes.area === selectedAreaSize) {
+                      if (item.attributes.area == selectedAreaSize) {
                         const filter = new FeatureFilter({
-                          where:
-                            "area = '" +
-                            selectedAreaSize +
-                            "' AND bedsNumber = '" +
-                            selectedBedsN +
-                            "'",
+                          where: "area = '" + selectedAreaSize + "'",
+                            // "area = '" +
+                            // selectedAreaSize +
+                            // "' AND ground = '" +
+                            // selectedBedsN +
+                            // "'",
                         });
                         layerView.filter = filter;
 
